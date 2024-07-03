@@ -1,0 +1,29 @@
+name: Node.js Continuous Deployment
+
+on:
+  schedule:
+    - cron: '0 * * * *' # This triggers the workflow every hour
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  build-and-start:
+    runs-on: ubuntu-latest
+    concurrency: # Ensure only one instance runs at a time
+      group: nodejs-bot
+      cancel-in-progress: true
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+        
+    - name: Install dependencies
+      run: npm install || yarn install
+      
+    - name: Start application
+      run: |
+        nohup npm start &
+        sleep 3500 # Run for nearly 1 hour to ensure it restarts before the next schedule
